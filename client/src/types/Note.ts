@@ -1,4 +1,4 @@
-export interface Todo {
+export interface Note {
   todoId: string
   createdAt: string
   name: string
