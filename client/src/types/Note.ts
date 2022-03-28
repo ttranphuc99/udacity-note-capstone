@@ -1,5 +1,5 @@
 export interface Note {
-  todoId: string
+  noteId: string
   createdAt: string
   name: string
   dueDate: string

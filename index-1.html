@@ -1,19 +1,19 @@
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Unknown </title></head><body>
-<h1 id="serverless-todo">Serverless TODO</h1>
-<p>To implement this project, you need to implement a simple TODO application using AWS Lambda and Serverless framework. Search for all comments starting with the <code>TODO:</code> in the code to find the placeholders that you need to implement.</p>
+<h1 id="serverless-note">Serverless NOTE</h1>
+<p>To implement this project, you need to implement a simple NOTE application using AWS Lambda and Serverless framework. Search for all comments starting with the <code>NOTE:</code> in the code to find the placeholders that you need to implement.</p>
 <h1 id="functionality-of-the-application">Functionality of the application</h1>
-<p>This application will allow creating/removing/updating/fetching TODO items. Each TODO item can optionally have an attachment image. Each user only has access to TODO items that he/she has created.</p>
-<h1 id="todo-items">TODO items</h1>
-<p>The application should store TODO items, and each TODO item contains the following fields:</p>
+<p>This application will allow creating/removing/updating/fetching NOTE items. Each NOTE item can optionally have an attachment image. Each user only has access to NOTE items that he/she has created.</p>
+<h1 id="note-items">NOTE items</h1>
+<p>The application should store NOTE items, and each NOTE item contains the following fields:</p>
 <ul>
-<li><code>todoId</code> (string) - a unique id for an item</li>
+<li><code>noteId</code> (string) - a unique id for an item</li>
 <li><code>createdAt</code> (string) - date and time when an item was created</li>
-<li><code>name</code> (string) - name of a TODO item (e.g. "Change a light bulb")</li>
+<li><code>name</code> (string) - name of a NOTE item (e.g. "Change a light bulb")</li>
 <li><code>dueDate</code> (string) - date and time by which an item should be completed</li>
 <li><code>done</code> (boolean) - true if an item was completed, false otherwise</li>
-<li><code>attachmentUrl</code> (string) (optional) - a URL pointing to an image attached to a TODO item</li>
+<li><code>attachmentUrl</code> (string) (optional) - a URL pointing to an image attached to a NOTE item</li>
 </ul>
-<p>You might also store an id of a user who created a TODO item.</p>
+<p>You might also store an id of a user who created a NOTE item.</p>
 <h2 id="prerequisites">Prerequisites</h2>
 <ul>
 <li><a href="https://manage.auth0.com/" target="_blank">Auth0 account</a></li>
@@ -40,7 +40,7 @@
 <p><code>Auth</code> - this function should implement a custom authorizer for API Gateway that should be added to all other functions.</p>
 </li>
 <li>
-<p><code>GetTodos</code> - should return all TODOs for a current user. A user id can be extracted from a JWT token that is sent by the frontend</p>
+<p><code>GetNotes</code> - should return all NOTEs for a current user. A user id can be extracted from a JWT token that is sent by the frontend</p>
 </li>
 </ul>
 <p>It should return data that looks like this:</p>
@@ -48,7 +48,7 @@
 {
   "items": [
     {
-      "todoId": "123",
+      "noteId": "123",
       "createdAt": "2019-07-27T20:01:45.424Z",
       "name": "Buy milk",
       "dueDate": "2019-07-29T20:01:45.424Z",
@@ -56,7 +56,7 @@
       "attachmentUrl": "http://example.com/image.png"
     },
     {
-      "todoId": "456",
+      "noteId": "456",
       "createdAt": "2019-07-27T20:01:45.424Z",
       "name": "Send a letter",
       "dueDate": "2019-07-29T20:01:45.424Z",
@@ -66,9 +66,9 @@
   ]
 }</code></p>
 <ul>
-<li><code>CreateTodo</code> - should create a new TODO for a current user. A shape of data send by a client application to this function can be found in the <code>CreateTodoRequest.ts</code> file</li>
+<li><code>CreateNote</code> - should create a new NOTE for a current user. A shape of data send by a client application to this function can be found in the <code>CreateNoteRequest.ts</code> file</li>
 </ul>
-<p>It receives a new TODO item to be created in JSON format that looks like this:</p>
+<p>It receives a new NOTE item to be created in JSON format that looks like this:</p>
 <p><code>json
 {
   "createdAt": "2019-07-27T20:01:45.424Z",
@@ -77,11 +77,11 @@
   "done": false,
   "attachmentUrl": "http://example.com/image.png"
 }</code></p>
-<p>It should return a new TODO item that looks like this:</p>
+<p>It should return a new NOTE item that looks like this:</p>
 <p><code>json
 {
   "item": {
-    "todoId": "123",
+    "noteId": "123",
     "createdAt": "2019-07-27T20:01:45.424Z",
     "name": "Buy milk",
     "dueDate": "2019-07-29T20:01:45.424Z",
@@ -90,9 +90,9 @@
   }
 }</code></p>
 <ul>
-<li><code>UpdateTodo</code> - should update a TODO item created by a current user. A shape of data send by a client application to this function can be found in the <code>UpdateTodoRequest.ts</code> file</li>
+<li><code>UpdateNote</code> - should update a NOTE item created by a current user. A shape of data send by a client application to this function can be found in the <code>UpdateNoteRequest.ts</code> file</li>
 </ul>
-<p>It receives an object that contains three fields that can be updated in a TODO item:</p>
+<p>It receives an object that contains three fields that can be updated in a NOTE item:</p>
 <p><code>json
 {
   "name": "Buy bread",
@@ -102,11 +102,11 @@
 <p>The id of an item that should be updated is passed as a URL parameter.</p>
 <p>It should return an empty body.</p>
 <ul>
-<li><code>DeleteTodo</code> - should delete a TODO item created by a current user. Expects an id of a TODO item to remove.</li>
+<li><code>DeleteNote</code> - should delete a NOTE item created by a current user. Expects an id of a NOTE item to remove.</li>
 </ul>
 <p>It should return an empty body.</p>
 <ul>
-<li><code>GenerateUploadUrl</code> - returns a pre-signed URL that can be used to upload an attachment file for a TODO item.</li>
+<li><code>GenerateUploadUrl</code> - returns a pre-signed URL that can be used to upload an attachment file for a NOTE item.</li>
 </ul>
 <p>It should return a JSON object that looks like this:</p>
 <p><code>json
@@ -149,9 +149,9 @@ logger.info('User was authorized', {
 <p><strong>IMPORTANT</strong></p>
 <p><em>Please leave your application running until a submission is reviewed. If implemented correctly it will cost almost nothing when your application is idle.</em></p>
 <h1 id="suggestions">Suggestions</h1>
-<p>To store TODO items, you might want to use a DynamoDB table with local secondary index(es). A create a local secondary index you need to create a DynamoDB resource like this:</p>
+<p>To store NOTE items, you might want to use a DynamoDB table with local secondary index(es). A create a local secondary index you need to create a DynamoDB resource like this:</p>
 <p>```yml</p>
-<p>TodosTable:
+<p>NotesTable:
   Type: AWS::DynamoDB::Table
   Properties:
     AttributeDefinitions:
@@ -167,7 +167,7 @@ logger.info('User was authorized', {
       - AttributeName: sortKey
         KeyType: RANGE
     BillingMode: PAY_PER_REQUEST
-    TableName: ${self:provider.environment.TODOS_TABLE}
+    TableName: ${self:provider.environment.NOTES_TABLE}
     LocalSecondaryIndexes:
       - IndexName: ${self:provider.environment.INDEX_NAME}
         KeySchema:
@@ -201,7 +201,7 @@ sls deploy -v</code></p>
 <p><code>cd client
 npm install
 npm run start</code></p>
-<p>This should start a development server with the React application that will interact with the serverless TODO application.</p>
+<p>This should start a development server with the React application that will interact with the serverless NOTE application.</p>
 <h1 id="postman-collection">Postman collection</h1>
 <p>An alternative way to test your API, you can use the Postman collection that contains sample requests. You can find a Postman collection in this project. To import this collection, do the following.</p>
 <p>Click on the import button:</p>

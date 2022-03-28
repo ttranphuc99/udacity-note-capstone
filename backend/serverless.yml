@@ -1,7 +1,7 @@
 # TODO: Change the name of the org 
 org: ttranphuc99
-app: serverless-todo-app
-service: serverless-todo-app
+app: serverless-note-app
+service: serverless-note-app
 
 plugins:
   - serverless-webpack
@@ -31,9 +31,9 @@ provider:
   # Use these variables in the functions and resouorces section below. For example, 
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
-    TODOS_TABLE: Todos-${self:provider.stage}
-    TODOS_CREATED_AT_INDEX: CreatedAtIndex
-    ATTACHMENT_S3_BUCKET: serverless-c4-todo-images-tunx4-${self:provider.stage}
+    NOTES_TABLE: Notes-${self:provider.stage}
+    NOTES_CREATED_AT_INDEX: CreatedAtIndex
+    ATTACHMENT_S3_BUCKET: serverless-c4-note-images-tunx4-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
   logs:
@@ -57,73 +57,73 @@ functions:
 
   # TODO: Configure this function - 
   # Provide iamRoleStatements property for performing Actions on DynamoDB
-  GetTodos:
-    handler: src/lambda/http/getTodos.handler
+  GetNotes:
+    handler: src/lambda/http/getNotes.handler
     events:
       - http:
           method: get
-          path: todos
+          path: notes
           cors: true
           authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: !GetAtt TodosTable.Arn
+        Resource: !GetAtt NotesTable.Arn
   # TODO: Configure this function - 
   # Provide iamRoleStatements property. Decide the Actions and AWS Resource. 
   # To refer to an AWS resource defined in the "Resources" section, you can use "Resource: !GetAtt <resource-name>.Arn"
   # To validate incoming HTTP requests, we have provided the request schemas in function definition below. 
-  CreateTodo:
-    handler: src/lambda/http/createTodo.handler
+  CreateNote:
+    handler: src/lambda/http/createNote.handler
     events:
       - http:
           method: post
-          path: todos
+          path: notes
           cors: true
           authorizer: Auth
           request:
             schemas:
-              application/json: ${file(models/create-todo-model.json)}
+              application/json: ${file(models/create-note-model.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
-        Resource: !GetAtt TodosTable.Arn
+        Resource: !GetAtt NotesTable.Arn
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
-  UpdateTodo:
-    handler: src/lambda/http/updateTodo.handler
+  UpdateNote:
+    handler: src/lambda/http/updateNote.handler
     events:
       - http:
           method: patch
-          path: todos/{todoId}
+          path: notes/{noteId}
           cors: true
           authorizer: Auth
           request:
             schemas:
-              application/json: ${file(models/update-todo-model.json)}
+              application/json: ${file(models/update-note-model.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: !GetAtt TodosTable.Arn
+        Resource: !GetAtt NotesTable.Arn
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
-  DeleteTodo:
-    handler: src/lambda/http/deleteTodo.handler
+  DeleteNote:
+    handler: src/lambda/http/deleteNote.handler
     events:
       - http:
           method: delete
-          path: todos/{todoId}
+          path: notes/{noteId}
           cors: true
           authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:DeleteItem
-        Resource: !GetAtt TodosTable.Arn
+        Resource: !GetAtt NotesTable.Arn
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
@@ -132,7 +132,7 @@ functions:
     events:
       - http:
           method: post
-          path: todos/{todoId}/attachment
+          path: notes/{noteId}/attachment
           cors: true
           authorizer: Auth
     iamRoleStatements:
@@ -144,7 +144,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: !GetAtt TodosTable.Arn
+        Resource: !GetAtt NotesTable.Arn
 resources:
   Resources:
     # Add necessary AWS resources. You will need at least the following AWS resources
@@ -161,25 +161,25 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
     # TODO: Create a DynamoDB table with local secondary index and a composite key
-    TodosTable:
+    NotesTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
-          - AttributeName: todoId
+          - AttributeName: noteId
             AttributeType: S
           - AttributeName: createdAt
             AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
-          - AttributeName: todoId
+          - AttributeName: noteId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.TODOS_TABLE}
+        TableName: ${self:provider.environment.NOTES_TABLE}
         LocalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
+          - IndexName: ${self:provider.environment.NOTES_CREATED_AT_INDEX}
             KeySchema:
             - AttributeName: userId
               KeyType: HASH

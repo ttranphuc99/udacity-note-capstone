@@ -2,26 +2,26 @@ import * as AWS from 'aws-sdk'
 import * as AWSXRay from 'aws-xray-sdk'
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { createLogger } from '../utils/logger'
-import { TodoItem } from '../models/TodoItem'
-import { TodoUpdate } from '../models/TodoUpdate';
+import { NoteItem } from '../models/NoteItem'
+import { NoteUpdate } from '../models/NoteUpdate';
 
 //const XAWS = AWSXRay.captureAWS(AWS)
 
-const logger = createLogger('TodosAccess')
+const logger = createLogger('NotesAccess')
 
 // TODO: Implement the dataLayer logic
-export class TodosAccess {
+export class NotesAccess {
 
     constructor(
         private readonly docClient: DocumentClient = createDynamoDBClient(),
-        private readonly todosTable = process.env.TODOS_TABLE) {
+        private readonly notesTable = process.env.NOTES_TABLE) {
     }
 
-    async getAllTodos(userId: string): Promise<TodoItem[]> {
-        console.log('Getting all Todos for user ', userId)
+    async getAllNotes(userId: string): Promise<NoteItem[]> {
+        console.log('Getting all Notes for user ', userId)
 
         const result = await this.docClient.query({
-            TableName: this.todosTable,
+            TableName: this.notesTable,
             KeyConditionExpression: '#userId =:i',
             ExpressionAttributeNames: {
                 '#userId': 'userId'
@@ -32,36 +32,36 @@ export class TodosAccess {
         }).promise();
 
         const items = result.Items
-        return items as TodoItem[]
+        return items as NoteItem[]
     }
 
-    async createTodo(todo: TodoItem): Promise<TodoItem> {
-        console.log('Creating new TODO item')
+    async createNote(note: NoteItem): Promise<NoteItem> {
+        console.log('Creating new NOTE item')
         await this.docClient.put({
-            TableName: this.todosTable,
-            Item: todo
+            TableName: this.notesTable,
+            Item: note
         }).promise()
-        console.log('Created new TODO item')
-        return todo
+        console.log('Created new NOTE item')
+        return note
     }
 
-    async updateTodo(todo: TodoUpdate, userId: string, todoId: string): Promise<TodoUpdate> {
-        console.log(`Updating TODO ${todoId} for user ${userId}`)
+    async updateNote(note: NoteUpdate, userId: string, noteId: string): Promise<NoteUpdate> {
+        console.log(`Updating NOTE ${noteId} for user ${userId}`)
         const params = {
-            TableName: this.todosTable,
+            TableName: this.notesTable,
             Key: {
                 userId: userId,
-                todoId: todoId
+                noteId: noteId
             },
             ExpressionAttributeNames: {
-                '#todo_name': 'name',
+                '#note_name': 'name',
             },
             ExpressionAttributeValues: {
-                ':name': todo.name,
-                ':dueDate': todo.dueDate,
-                ':done': todo.done,
+                ':name': note.name,
+                ':dueDate': note.dueDate,
+                ':done': note.done,
             },
-            UpdateExpression: 'SET #todo_name = :name, dueDate = :dueDate, done = :done',
+            UpdateExpression: 'SET #note_name = :name, dueDate = :dueDate, done = :done',
             ReturnValues: 'ALL_NEW',
         };
 
@@ -69,24 +69,24 @@ export class TodosAccess {
 
         logger.info('Result of update statement', { result: result });
 
-        return result.Attributes as TodoUpdate;
+        return result.Attributes as NoteUpdate;
     }
 
-    async updateAttachmentUrl(userId: string, todoId: string, attachmentUrl: string) {
-        console.log(`Updating attachment URL for TODO ${todoId} of user ${userId} with URL ${attachmentUrl}`)
+    async updateAttachmentUrl(userId: string, noteId: string, attachmentUrl: string) {
+        console.log(`Updating attachment URL for NOTE ${noteId} of user ${userId} with URL ${attachmentUrl}`)
         const params = {
-            TableName: this.todosTable,
+            TableName: this.notesTable,
             Key: {
                 userId: userId,
-                todoId: todoId
+                noteId: noteId
             },
             ExpressionAttributeNames: {
-                '#todo_attachmentUrl': 'attachmentUrl'
+                '#note_attachmentUrl': 'attachmentUrl'
             },
             ExpressionAttributeValues: {
                 ':attachmentUrl': attachmentUrl
             },
-            UpdateExpression: 'SET #todo_attachmentUrl = :attachmentUrl',
+            UpdateExpression: 'SET #note_attachmentUrl = :attachmentUrl',
             ReturnValues: 'ALL_NEW',
         };
 
@@ -94,18 +94,18 @@ export class TodosAccess {
         logger.info('Result of update statement', { result: result });
     }
 
-    async deleteTodo(todoId: string, userId: string) {
-        console.log(`Deleting TODO ${todoId} of user ${userId}`)
+    async deleteNote(noteId: string, userId: string) {
+        console.log(`Deleting NOTE ${noteId} of user ${userId}`)
     
         await this.docClient.delete({
-          TableName: this.todosTable,
+          TableName: this.notesTable,
           Key: {
             userId: userId,
-            todoId: todoId
+            noteId: noteId
           }
         }).promise();
     
-        logger.info('Deleted TODO successfully');
+        logger.info('Deleted NOTE successfully');
       }
 }
 

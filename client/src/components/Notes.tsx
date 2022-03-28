@@ -14,7 +14,7 @@ import {
   Loader
 } from 'semantic-ui-react'
 
-import { createNote, deleteNote, getNotes, patchNote } from '../api/todos-api'
+import { createNote, deleteNote, getNotes, patchNote } from '../api/notes-api'
 import Auth from '../auth/Auth'
 import { Note } from '../types/Note'
 
@@ -24,14 +24,14 @@ interface NotesProps {
 }
 
 interface NotesState {
-  todos: Note[]
+  notes: Note[]
   newNoteName: string
   loadingNotes: boolean
 }
 
 export class Notes extends React.PureComponent<NotesProps, NotesState> {
   state: NotesState = {
-    todos: [],
+    notes: [],
     newNoteName: '',
     loadingNotes: true
   }
@@ -40,8 +40,8 @@ export class Notes extends React.PureComponent<NotesProps, NotesState> {
     this.setState({ newNoteName: event.target.value })
   }
 
-  onEditButtonClick = (todoId: string) => {
-    this.props.history.push(`/todos/${todoId}/edit`)
+  onEditButtonClick = (noteId: string) => {
+    this.props.history.push(`/notes/${noteId}/edit`)
   }
 
   onNoteCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
@@ -52,7 +52,7 @@ export class Notes extends React.PureComponent<NotesProps, NotesState> {
         dueDate
       })
       this.setState({
-        todos: [...this.state.todos, newNote],
+        notes: [...this.state.notes, newNote],
         newNoteName: ''
       })
     } catch {
@@ -60,11 +60,11 @@ export class Notes extends React.PureComponent<NotesProps, NotesState> {
     }
   }
 
-  onNoteDelete = async (todoId: string) => {
+  onNoteDelete = async (noteId: string) => {
     try {
-      await deleteNote(this.props.auth.getIdToken(), todoId)
+      await deleteNote(this.props.auth.getIdToken(), noteId)
       this.setState({
-        todos: this.state.todos.filter(todo => todo.todoId !== todoId)
+        notes: this.state.notes.filter(note => note.noteId !== noteId)
       })
     } catch {
       alert('Note deletion failed')
@@ -73,15 +73,15 @@ export class Notes extends React.PureComponent<NotesProps, NotesState> {
 
   onNoteCheck = async (pos: number) => {
     try {
-      const todo = this.state.todos[pos]
-      await patchNote(this.props.auth.getIdToken(), todo.todoId, {
-        name: todo.name,
-        dueDate: todo.dueDate,
-        done: !todo.done
+      const note = this.state.notes[pos]
+      await patchNote(this.props.auth.getIdToken(), note.noteId, {
+        name: note.name,
+        dueDate: note.dueDate,
+        done: !note.done
       })
       this.setState({
-        todos: update(this.state.todos, {
-          [pos]: { done: { $set: !todo.done } }
+        notes: update(this.state.notes, {
+          [pos]: { done: { $set: !note.done } }
         })
       })
     } catch {
@@ -91,14 +91,14 @@ export class Notes extends React.PureComponent<NotesProps, NotesState> {
 
   async componentDidMount() {
     try {
-      const todos = await getNotes(this.props.auth.getIdToken())
+      const notes = await getNotes(this.props.auth.getIdToken())
       this.setState({
-        todos,
+        notes,
         loadingNotes: false
       })
     } catch (e) {
       if (e instanceof Error) {
-        alert(`Failed to fetch todos: ${e.message}`)
+        alert(`Failed to fetch notes: ${e.message}`)
       }
     }
   }
@@ -161,26 +161,26 @@ export class Notes extends React.PureComponent<NotesProps, NotesState> {
   renderNotesList() {
     return (
       <Grid padded>
-        {this.state.todos.map((todo, pos) => {
+        {this.state.notes.map((note, pos) => {
           return (
-            <Grid.Row key={todo.todoId}>
+            <Grid.Row key={note.noteId}>
               <Grid.Column width={1} verticalAlign="middle">
                 <Checkbox
                   onChange={() => this.onNoteCheck(pos)}
-                  checked={todo.done}
+                  checked={note.done}
                 />
               </Grid.Column>
               <Grid.Column width={10} verticalAlign="middle">
-                {todo.name}
+                {note.name}
               </Grid.Column>
               <Grid.Column width={3} floated="right">
-                {todo.dueDate}
+                {note.dueDate}
               </Grid.Column>
               <Grid.Column width={1} floated="right">
                 <Button
                   icon
                   color="blue"
-                  onClick={() => this.onEditButtonClick(todo.todoId)}
+                  onClick={() => this.onEditButtonClick(note.noteId)}
                 >
                   <Icon name="pencil" />
                 </Button>
@@ -189,13 +189,13 @@ export class Notes extends React.PureComponent<NotesProps, NotesState> {
                 <Button
                   icon
                   color="red"
-                  onClick={() => this.onNoteDelete(todo.todoId)}
+                  onClick={() => this.onNoteDelete(note.noteId)}
                 >
                   <Icon name="delete" />
                 </Button>
               </Grid.Column>
-              {todo.attachmentUrl && (
-                <Image src={todo.attachmentUrl} size="small" wrapped />
+              {note.attachmentUrl && (
+                <Image src={note.attachmentUrl} size="small" wrapped />
               )}
               <Grid.Column width={16}>
                 <Divider />

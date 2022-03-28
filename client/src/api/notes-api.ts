@@ -7,7 +7,7 @@ import { UpdateNoteRequest } from '../types/UpdateNoteRequest';
 export async function getNotes(idToken: string): Promise<Note[]> {
   console.log('Fetching notes')
 
-  const response = await Axios.get(`${apiEndpoint}/todos`, {
+  const response = await Axios.get(`${apiEndpoint}/notes`, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
@@ -21,7 +21,7 @@ export async function createNote(
   idToken: string,
   newNote: CreateNoteRequest
 ): Promise<Note> {
-  const response = await Axios.post(`${apiEndpoint}/todos`,  JSON.stringify(newNote), {
+  const response = await Axios.post(`${apiEndpoint}/notes`,  JSON.stringify(newNote), {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
@@ -32,10 +32,10 @@ export async function createNote(
 
 export async function patchNote(
   idToken: string,
-  todoId: string,
+  noteId: string,
   updatedNote: UpdateNoteRequest
 ): Promise<void> {
-  await Axios.patch(`${apiEndpoint}/todos/${todoId}`, JSON.stringify(updatedNote), {
+  await Axios.patch(`${apiEndpoint}/notes/${noteId}`, JSON.stringify(updatedNote), {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
@@ -45,9 +45,9 @@ export async function patchNote(
 
 export async function deleteNote(
   idToken: string,
-  todoId: string
+  noteId: string
 ): Promise<void> {
-  await Axios.delete(`${apiEndpoint}/todos/${todoId}`, {
+  await Axios.delete(`${apiEndpoint}/notes/${noteId}`, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
@@ -57,9 +57,9 @@ export async function deleteNote(
 
 export async function getUploadUrl(
   idToken: string,
-  todoId: string
+  noteId: string
 ): Promise<string> {
-  const response = await Axios.post(`${apiEndpoint}/todos/${todoId}/attachment`, '', {
+  const response = await Axios.post(`${apiEndpoint}/notes/${noteId}/attachment`, '', {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
