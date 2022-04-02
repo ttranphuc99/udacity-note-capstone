@@ -35,6 +35,25 @@ export class NotesAccess {
         return items as NoteItem[]
     }
 
+    async searchNotes(userId: string, keyword: string): Promise<NoteItem[]> {
+        console.log('search all Notes for user ', userId, ' with keyword ', keyword)
+
+        const result = await this.docClient.query({
+            TableName: this.notesTable,
+            KeyConditionExpression: '#userId =:i',
+            ExpressionAttributeNames: {
+                '#userId': 'userId'
+            },
+            ExpressionAttributeValues: {
+                ':i': userId
+            }
+        }).promise();
+
+        let items = result.Items as NoteItem[]
+        items = items.filter(item => item.name.includes(keyword))
+        return items
+    }
+
     async createNote(note: NoteItem): Promise<NoteItem> {
         console.log('Creating new NOTE item')
         await this.docClient.put({

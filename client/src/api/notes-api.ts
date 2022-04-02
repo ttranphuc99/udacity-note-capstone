@@ -3,6 +3,7 @@ import { Note } from '../types/Note';
 import { CreateNoteRequest } from '../types/CreateNoteRequest';
 import Axios from 'axios'
 import { UpdateNoteRequest } from '../types/UpdateNoteRequest';
+import { SearchNoteRequest } from '../types/SearchNoteRequest';
 
 export async function getNotes(idToken: string): Promise<Note[]> {
   console.log('Fetching notes')
@@ -28,6 +29,22 @@ export async function createNote(
     }
   })
   return response.data.item
+}
+
+export async function searchNotes(
+  idToken: string,
+  searchReq: SearchNoteRequest
+): Promise<Note[]> {
+  console.log('Search notes ', searchReq)
+
+  const response = await Axios.post(`${apiEndpoint}/search/notes`, JSON.stringify(searchReq), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    },
+  })
+  console.log('Notes:', response.data)
+  return response.data.items
 }
 
 export async function patchNote(

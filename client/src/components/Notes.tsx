@@ -14,9 +14,10 @@ import {
   Loader
 } from 'semantic-ui-react'
 
-import { createNote, deleteNote, getNotes, patchNote } from '../api/notes-api'
+import { createNote, deleteNote, getNotes, patchNote, searchNotes } from '../api/notes-api'
 import Auth from '../auth/Auth'
 import { Note } from '../types/Note'
+import { SearchNoteRequest } from '../types/SearchNoteRequest'
 
 interface NotesProps {
   auth: Auth
@@ -26,6 +27,7 @@ interface NotesProps {
 interface NotesState {
   notes: Note[]
   newNoteName: string
+  searchNote: string
   loadingNotes: boolean
 }
 
@@ -33,11 +35,16 @@ export class Notes extends React.PureComponent<NotesProps, NotesState> {
   state: NotesState = {
     notes: [],
     newNoteName: '',
+    searchNote: '',
     loadingNotes: true
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ newNoteName: event.target.value })
+  }
+
+  handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ searchNote: event.target.value })
   }
 
   onEditButtonClick = (noteId: string) => {
@@ -57,6 +64,31 @@ export class Notes extends React.PureComponent<NotesProps, NotesState> {
       })
     } catch {
       alert('Note creation failed')
+    }
+  }
+
+  onNoteSearch = async (event: React.ChangeEvent<HTMLButtonElement>) => {
+    try {
+      const searchNote = this.state.searchNote
+      console.log('Search note with keyword: ', searchNote)
+
+      if (searchNote) {
+        console.log('Enter search note')
+        const searchReq:SearchNoteRequest = {keyword: searchNote}
+
+        const notes = await searchNotes(this.props.auth.getIdToken(), searchReq)
+        this.setState({
+          notes,
+          loadingNotes: false
+        })
+      } else {
+        console.log('Empty search. Enter fetch note')
+        this.componentDidMount()
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        alert(`Failed to fetch notes: ${e.message}`)
+      }
     }
   }
 
@@ -108,6 +140,8 @@ export class Notes extends React.PureComponent<NotesProps, NotesState> {
       <div>
         <Header as="h1">NOTEs</Header>
 
+        {this.renderNoteSearch()}
+
         {this.renderCreateNoteInput()}
 
         {this.renderNotes()}
@@ -131,6 +165,31 @@ export class Notes extends React.PureComponent<NotesProps, NotesState> {
             actionPosition="left"
             placeholder="Add your note here..."
             onChange={this.handleNameChange}
+          />
+        </Grid.Column>
+        <Grid.Column width={16}>
+          <Divider />
+        </Grid.Column>
+      </Grid.Row>
+    )
+  }
+
+  renderNoteSearch() {
+    return (
+      <Grid.Row>
+        <Grid.Column width={16}>
+          <Input
+            action={{
+              color: 'teal',
+              labelPosition: 'left',
+              icon: 'search',
+              content: 'Search note name',
+              onClick: this.onNoteSearch
+            }}
+            fluid
+            actionPosition="left"
+            placeholder="Search your note here..."
+            onChange={this.handleSearch}
           />
         </Grid.Column>
         <Grid.Column width={16}>

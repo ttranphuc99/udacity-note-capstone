@@ -23,6 +23,10 @@ export async function getAllNotes(userId: string): Promise<NoteItem[]> {
     return notesAccess.getAllNotes(userId);
 }
 
+export async function searchNote(userId: string, keyword: string): Promise<NoteItem[]> {
+    return notesAccess.searchNotes(userId, keyword);
+}
+
 export async function createNote(createNoteRequest: CreateNoteRequest, userId: string): Promise<NoteItem> {
 
     const noteId = uuid.v4();
